@@ -10,6 +10,7 @@ class OptparseAlert
   def self.parse(args)
     options = OpenStruct.new
     options.config = File.expand_path "~/.alertrc"
+    options.drivers = []
     
     opts = OptionParser.new do |opts|
       opts.banner = "Usage: alert [options]"
@@ -17,6 +18,19 @@ class OptparseAlert
       opts.on("-c", "--config [CONFIG]", "Configuration file") do |config|
         options.config = File.expand_path config
       end
+      
+      
+      opts.separator ""
+      opts.separator "Alert drivers:"
+      
+      Alert.constants.each do |driver|
+        opts.on("--#{driver.downcase}","Use #{driver} driver") do 
+          options.drivers << driver.downcase
+        end
+      end
+      
+      opts.separator ""
+      opts.separator "Common options:"
       
       opts.on_tail("-h", "--help", "Show this message") do
         puts opts
