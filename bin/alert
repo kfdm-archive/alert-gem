@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+$:.unshift File.join(File.dirname(__FILE__),'..','lib')
+
+require "yaml"
+require "alert/alert"
+require "optparse"
+require 'ostruct'
+
+class OptparseAlert
+  def self.parse(args)
+    options = OpenStruct.new
+    options.config = File.expand_path "~/.alertrc"
+    
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: alert [options]"
+      
+      opts.on("-c", "--config [CONFIG]", "Configuration file") do |config|
+        options.config = File.expand_path config
+      end
+      
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        exit
+      end
+    end
+    opts.parse!(args)
+    options
+  end
+end
+
+options = OptparseAlert.parse(ARGV)
+
+if File.exists? options.config then
+  puts "Reading config #{options.config}"
+  ruby_obj = YAML::load( File.read options.config )
+  ruby_obj.each {|key, value| puts "#{key} is #{value}" }
+end
+
+puts Alert::constants
+#Alert::Prowl.notify("Testing from #{__FILE__}",{:apikey=>prowlkey})
